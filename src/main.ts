@@ -22,27 +22,31 @@ function main() {
     scene.add(light);
   }
 
-  const boxWidth = 1;
-  const boxHeight = 1;
-  const boxDepth = 1;
-  const geometry = new THREE.BoxGeometry(boxWidth, boxHeight, boxDepth);
+  const radius = 1; // sphere radius. Default is 1.
+  const widthSegments = 128; // number of horizontal segments. Minimum value is 3, and the default is 32.
+  const heightSegments = 64; // number of vertical segments. Minimum value is 2, and the default is 16.
+  // const phiStart = 0; // specify horizontal starting angle. Default is 0.
+  // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
+  // const thetaStart = 0; // specify vertical starting angle. Default is 0.
+  // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
+  const geometry = new THREE.SphereGeometry(
+    radius,
+    widthSegments,
+    heightSegments
+  );
 
-  function makeInstance(geometry, color, x) {
+  function createSphere(geometry, color, x) {
     const material = new THREE.MeshPhongMaterial({ color });
 
-    const cube = new THREE.Mesh(geometry, material);
-    scene.add(cube);
+    const sphere = new THREE.Mesh(geometry, material);
+    scene.add(sphere);
 
-    cube.position.x = x;
+    sphere.position.x = x;
 
-    return cube;
+    return sphere;
   }
 
-  const cubes = [
-    makeInstance(geometry, 0x44aa88, 0),
-    makeInstance(geometry, 0x8844aa, -2),
-    makeInstance(geometry, 0xaa8844, 2),
-  ];
+  const sphere = createSphere(geometry, 0x909090, 0);
 
   function resizeRendererToDisplaySize(renderer) {
     const canvas = renderer.domElement;
@@ -66,12 +70,10 @@ function main() {
       camera.updateProjectionMatrix();
     }
 
-    cubes.forEach((cube, ndx) => {
-      const speed = 1 + ndx * 0.1;
-      const rot = time * speed;
-      cube.rotation.x = rot;
-      cube.rotation.y = rot;
-    });
+    const speed = 1 * 0.1;
+    const rot = time * speed;
+    sphere.rotation.x = rot;
+    sphere.rotation.y = rot;
 
     renderer.render(scene, camera);
 
