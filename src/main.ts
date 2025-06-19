@@ -2,21 +2,24 @@ import * as THREE from 'three';
 import './style.css';
 
 function main() {
+  // A canvas where the renderer draws its output. If not passed in here, a new canvas element will be created.
   const canvas = document.querySelector('#c');
-  const renderer = new THREE.WebGLRenderer({ antialias: true, canvas });
+  // Whether to perform antialiasing. Default is false.
+  const antialias = true;
+  const renderer = new THREE.WebGLRenderer({ antialias, canvas });
 
-  const fov = 75;
-  const aspect = 2; // the canvas default
-  const near = 0.1;
-  const far = 5;
+  const fov = 75; // Camera frustum vertical field of view, from bottom to top of view, in degrees. Default is 50.
+  const aspect = 1; // Camera frustum aspect ratio, usually the canvas width / canvas height. Default is 1 (square canvas).
+  const near = 0.1; // Camera frustum near plane. Default is 0.1.
+  const far = 2000; // Camera frustum far plane. Default is 2000. Must be greater than the current value of near plane.
   const camera = new THREE.PerspectiveCamera(fov, aspect, near, far);
   camera.position.z = 2;
 
   const scene = new THREE.Scene();
 
   {
-    const color = 0xffffff;
-    const intensity = 3;
+    const color = 0xffffff; // hexadecimal color of the light. Default is 0xffffff (white).
+    const intensity = 1; // numeric value of the light's strength/intensity. Default is 1.
     const light = new THREE.DirectionalLight(color, intensity);
     light.position.set(-1, 2, 4);
     scene.add(light);
