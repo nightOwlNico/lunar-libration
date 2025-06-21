@@ -88,27 +88,71 @@ function initScene() {
   return scene;
 }
 
+function createStars(scene) {
+  const starsGeometry = new THREE.BufferGeometry();
+  const starsMaterial = new THREE.PointsMaterial({
+    color: 0xffffff,
+    size: 0.1,
+    sizeAttenuation: true,
+  });
+
+  const starsVertices = [];
+  for (let i = 0; i < 10000; i++) {
+    const x = THREE.MathUtils.randFloatSpread(2000);
+    const y = THREE.MathUtils.randFloatSpread(2000);
+    const z = THREE.MathUtils.randFloatSpread(2000);
+    starsVertices.push(x, y, z);
+  }
+
+  starsGeometry.setAttribute(
+    'position',
+    new THREE.Float32BufferAttribute(starsVertices, 3)
+  );
+  const starField = new THREE.Points(starsGeometry, starsMaterial);
+  scene.add(starField);
+}
+
+function setupLighting(scene) {
+  // Simulate starlight with very low intensity ambient light
+  const starlight = new THREE.AmbientLight(0x111111, 0.1);
+  scene.add(starlight);
+
+  // Main directional light to simulate sunlight
+  const sunlight = new THREE.DirectionalLight(0xffffff, 1.5);
+  sunlight.position.set(50, 30, 50);
+  sunlight.castShadow = true;
+  sunlight.shadow.mapSize.width = 2048;
+  sunlight.shadow.mapSize.height = 2048;
+  sunlight.shadow.camera.near = 1;
+  sunlight.shadow.camera.far = 200;
+  sunlight.shadow.bias = -0.00005;
+  scene.add(sunlight);
+
+  // Simulate earthshine (light reflected from Earth)
+  const earthshine = new THREE.HemisphereLight(0x063e7b, 0x000000, 0.1);
+  earthshine.position.set(0, -1, 0);
+  scene.add(earthshine);
+
+  // Add a point light to create a subtle glow effect
+  const moonGlow = new THREE.PointLight(0xffffff, 0.3, 100);
+  moonGlow.position.set(0, 0, 0);
+  scene.add(moonGlow);
+}
+
 // ^^^^^^^^^^Initialization Functions^^^^^^^^^^
 
 // ==========Main Function==========
 function main() {
   const renderer = initRenderer();
-
   const camera = initCamera();
-
   const scene = initScene();
 
-  {
-    const color = 0xffffff; // hexadecimal color of the light. Default is 0xffffff (white).
-    const intensity = 1; // numeric value of the light's strength/intensity. Default is 1.
-    const light = new THREE.DirectionalLight(color, intensity);
-    light.position.set(-1, 2, 4);
-    scene.add(light);
-  }
+  createStars(scene);
+  setupLighting(scene);
 
   const radius = 1; // sphere radius. Default is 1.
-  const widthSegments = 64; // number of horizontal segments. Minimum value is 3, and the default is 32.
-  const heightSegments = 32; // number of vertical segments. Minimum value is 2, and the default is 16.
+  const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
+  const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
   // const phiStart = 0; // specify horizontal starting angle. Default is 0.
   // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
   // const thetaStart = 0; // specify vertical starting angle. Default is 0.
