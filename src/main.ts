@@ -156,6 +156,30 @@ function setupLighting(scene) {
   scene.add(moonGlow);
 }
 
+function createMoon(scene) {
+  const radius = 1; // sphere radius. Default is 1.
+  const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
+  const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
+  // const phiStart = 0; // specify horizontal starting angle. Default is 0.
+  // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
+  // const thetaStart = 0; // specify vertical starting angle. Default is 0.
+  // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
+  const geometry = new THREE.SphereGeometry(
+    radius,
+    widthSegments,
+    heightSegments
+  );
+
+  const material = new THREE.MeshPhongMaterial({ color: 0x909090 });
+
+  const sphere = new THREE.Mesh(geometry, material);
+
+  scene.add(sphere);
+  // moon.position.x = 0;
+
+  return sphere;
+}
+
 // ^^^^^^^^^^Initialization Functions^^^^^^^^^^
 
 // ==========Main Function==========
@@ -173,31 +197,7 @@ function main() {
     createStars(scene);
     setupLighting(scene);
 
-    const radius = 1; // sphere radius. Default is 1.
-    const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
-    const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
-    // const phiStart = 0; // specify horizontal starting angle. Default is 0.
-    // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
-    // const thetaStart = 0; // specify vertical starting angle. Default is 0.
-    // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
-    const geometry = new THREE.SphereGeometry(
-      radius,
-      widthSegments,
-      heightSegments
-    );
-
-    function createSphere(geometry, color, x) {
-      const material = new THREE.MeshPhongMaterial({ color });
-
-      const sphere = new THREE.Mesh(geometry, material);
-      scene.add(sphere);
-
-      sphere.position.x = x;
-
-      return sphere;
-    }
-
-    const sphere = createSphere(geometry, 0x909090, 0);
+    const moon = createMoon(scene);
 
     function resizeRendererToDisplaySize(renderer) {
       const canvas = renderer.domElement;
@@ -223,8 +223,8 @@ function main() {
 
       const speed = 1 * 0.1;
       const rot = time * speed;
-      sphere.rotation.x = rot;
-      sphere.rotation.y = rot;
+      moon.rotation.x = rot;
+      moon.rotation.y = rot;
 
       renderer.render(scene, camera);
 
