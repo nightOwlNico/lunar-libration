@@ -1,5 +1,22 @@
 import * as THREE from 'three';
+import WebGL from 'three/addons/capabilities/WebGL.js';
 import './style.css';
+
+// ==========Utility Functions==========
+function showWebGLError() {
+  const warning = WebGL.getWebGLErrorMessage();
+  warning.setAttribute('role', 'alert');
+  warning.innerHTML +=
+    '<p>Please update your browser or enable WebGL2 to enjoy this content. Visit <a href="https://get.webgl.org/webgl2/">get.webgl.org/webgl2</a> for more information.</p>';
+  const container = document.createElement('div');
+  container.id = 'error-container';
+  container.style =
+    'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: Arial, sans-serif;';
+  document.body.appendChild(container);
+  container.appendChild(warning);
+  console.error('WebGL2 is not available:', WebGL.getWebGLErrorMessage());
+}
+// ^^^^^^^^^^Utility Functions^^^^^^^^^^
 
 // ==========Initialization Functions==========
 function initRenderer() {
@@ -143,72 +160,81 @@ function setupLighting(scene) {
 
 // ==========Main Function==========
 function main() {
-  const renderer = initRenderer();
-  const camera = initCamera();
-  const scene = initScene();
-
-  createStars(scene);
-  setupLighting(scene);
-
-  const radius = 1; // sphere radius. Default is 1.
-  const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
-  const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
-  // const phiStart = 0; // specify horizontal starting angle. Default is 0.
-  // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
-  // const thetaStart = 0; // specify vertical starting angle. Default is 0.
-  // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
-  const geometry = new THREE.SphereGeometry(
-    radius,
-    widthSegments,
-    heightSegments
-  );
-
-  function createSphere(geometry, color, x) {
-    const material = new THREE.MeshPhongMaterial({ color });
-
-    const sphere = new THREE.Mesh(geometry, material);
-    scene.add(sphere);
-
-    sphere.position.x = x;
-
-    return sphere;
+  if (!WebGL.isWebGL2Available()) {
+    showWebGLError();
+    return;
   }
 
-  const sphere = createSphere(geometry, 0x909090, 0);
+  try {
+    const renderer = initRenderer();
+    const camera = initCamera();
+    const scene = initScene();
 
-  function resizeRendererToDisplaySize(renderer) {
-    const canvas = renderer.domElement;
-    const pixelRatio = window.devicePixelRatio;
-    const width = Math.floor(canvas.clientWidth * pixelRatio);
-    const height = Math.floor(canvas.clientHeight * pixelRatio);
-    const needResize = canvas.width !== width || canvas.height !== height;
-    if (needResize) {
-      renderer.setSize(width, height, false);
+    createStars(scene);
+    setupLighting(scene);
+
+    const radius = 1; // sphere radius. Default is 1.
+    const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
+    const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
+    // const phiStart = 0; // specify horizontal starting angle. Default is 0.
+    // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
+    // const thetaStart = 0; // specify vertical starting angle. Default is 0.
+    // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
+    const geometry = new THREE.SphereGeometry(
+      radius,
+      widthSegments,
+      heightSegments
+    );
+
+    function createSphere(geometry, color, x) {
+      const material = new THREE.MeshPhongMaterial({ color });
+
+      const sphere = new THREE.Mesh(geometry, material);
+      scene.add(sphere);
+
+      sphere.position.x = x;
+
+      return sphere;
     }
 
-    return needResize;
-  }
+    const sphere = createSphere(geometry, 0x909090, 0);
 
-  function render(time) {
-    time *= 0.001;
-
-    if (resizeRendererToDisplaySize(renderer)) {
+    function resizeRendererToDisplaySize(renderer) {
       const canvas = renderer.domElement;
-      camera.aspect = canvas.clientWidth / canvas.clientHeight;
-      camera.updateProjectionMatrix();
+      const pixelRatio = window.devicePixelRatio;
+      const width = Math.floor(canvas.clientWidth * pixelRatio);
+      const height = Math.floor(canvas.clientHeight * pixelRatio);
+      const needResize = canvas.width !== width || canvas.height !== height;
+      if (needResize) {
+        renderer.setSize(width, height, false);
+      }
+
+      return needResize;
     }
 
-    const speed = 1 * 0.1;
-    const rot = time * speed;
-    sphere.rotation.x = rot;
-    sphere.rotation.y = rot;
+    function render(time) {
+      time *= 0.001;
 
-    renderer.render(scene, camera);
+      if (resizeRendererToDisplaySize(renderer)) {
+        const canvas = renderer.domElement;
+        camera.aspect = canvas.clientWidth / canvas.clientHeight;
+        camera.updateProjectionMatrix();
+      }
+
+      const speed = 1 * 0.1;
+      const rot = time * speed;
+      sphere.rotation.x = rot;
+      sphere.rotation.y = rot;
+
+      renderer.render(scene, camera);
+
+      requestAnimationFrame(render);
+    }
 
     requestAnimationFrame(render);
+  } catch (error) {
+    console.error('Initialization failed:', error);
   }
-
-  requestAnimationFrame(render);
 }
 // ^^^^^^^^^^Main Function^^^^^^^^^^
 
