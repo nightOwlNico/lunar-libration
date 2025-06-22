@@ -16,6 +16,19 @@ function showWebGLError() {
   container.appendChild(warning);
   console.error('WebGL2 is not available:', WebGL.getWebGLErrorMessage());
 }
+
+function resizeRendererToDisplaySize(renderer) {
+  const canvas = renderer.domElement;
+  const pixelRatio = window.devicePixelRatio;
+  const width = Math.floor(canvas.clientWidth * pixelRatio);
+  const height = Math.floor(canvas.clientHeight * pixelRatio);
+  const needResize = canvas.width !== width || canvas.height !== height;
+  if (needResize) {
+    renderer.setSize(width, height, false);
+  }
+
+  return needResize;
+}
 // ^^^^^^^^^^Utility Functions^^^^^^^^^^
 
 // ==========Initialization Functions==========
@@ -170,7 +183,7 @@ function createMoon(scene) {
     heightSegments
   );
 
-  const material = new THREE.MeshPhongMaterial({ color: 0x909090 });
+  const material = new THREE.MeshPhysicalMaterial({ color: 0xff0000 });
 
   const sphere = new THREE.Mesh(geometry, material);
 
@@ -198,19 +211,6 @@ function main() {
     setupLighting(scene);
 
     const moon = createMoon(scene);
-
-    function resizeRendererToDisplaySize(renderer) {
-      const canvas = renderer.domElement;
-      const pixelRatio = window.devicePixelRatio;
-      const width = Math.floor(canvas.clientWidth * pixelRatio);
-      const height = Math.floor(canvas.clientHeight * pixelRatio);
-      const needResize = canvas.width !== width || canvas.height !== height;
-      if (needResize) {
-        renderer.setSize(width, height, false);
-      }
-
-      return needResize;
-    }
 
     function render(time) {
       time *= 0.001;
