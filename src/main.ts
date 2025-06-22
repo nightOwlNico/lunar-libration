@@ -5,7 +5,7 @@ import './style.css';
 
 // ==========Utility Functions==========
 function showWebGLError() {
-  const warning = WebGL.getWebGLErrorMessage();
+  const warning = WebGL.getWebGL2ErrorMessage();
   warning.setAttribute('role', 'alert');
   warning.innerHTML +=
     '<p>Please update your browser or enable WebGL2 to enjoy this content. Visit <a href="https://get.webgl.org/webgl2/">get.webgl.org/webgl2</a> for more information.</p>';
@@ -15,7 +15,7 @@ function showWebGLError() {
     'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: Arial, sans-serif;';
   document.body.appendChild(container);
   container.appendChild(warning);
-  console.error('WebGL2 is not available:', WebGL.getWebGLErrorMessage());
+  console.error('WebGL2 is not available:', WebGL.getWebGL2ErrorMessage());
 }
 
 function resizeRendererToDisplaySize(renderer: THREE.WebGLRenderer): boolean {
