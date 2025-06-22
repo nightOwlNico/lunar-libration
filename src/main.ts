@@ -11,14 +11,14 @@ function showWebGLError() {
     '<p>Please update your browser or enable WebGL2 to enjoy this content. Visit <a href="https://get.webgl.org/webgl2/">get.webgl.org/webgl2</a> for more information.</p>';
   const container = document.createElement('div');
   container.id = 'error-container';
-  container.style =
+  container.style.cssText =
     'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); color: white; display: flex; justify-content: center; align-items: center; font-size: 20px; font-family: Arial, sans-serif;';
   document.body.appendChild(container);
   container.appendChild(warning);
   console.error('WebGL2 is not available:', WebGL.getWebGLErrorMessage());
 }
 
-function resizeRendererToDisplaySize(renderer) {
+function resizeRendererToDisplaySize(renderer: THREE.WebGLRenderer): boolean {
   const canvas = renderer.domElement;
   const pixelRatio = window.devicePixelRatio;
   const width = Math.floor(canvas.clientWidth * pixelRatio);
@@ -33,9 +33,9 @@ function resizeRendererToDisplaySize(renderer) {
 // ^^^^^^^^^^Utility Functions^^^^^^^^^^
 
 // ==========Initialization Functions==========
-function initRenderer() {
+function initRenderer(): THREE.WebGLRenderer {
   // A canvas where the renderer draws its output. If not passed in here, a new canvas element will be created.
-  const canvas = document.querySelector('#c');
+  const canvas = document.querySelector('#c') as HTMLCanvasElement;
   // Whether to perform antialiasing. Default is false.
   const antialias = true;
 
@@ -65,7 +65,7 @@ function initRenderer() {
   return renderer;
 }
 
-function initCamera() {
+function initCamera(): THREE.PerspectiveCamera {
   // Camera frustum vertical field of view, from bottom to top of view, in degrees. Default is 50.
   const fov = 75;
   // Camera frustum aspect ratio, usually the canvas width / canvas height. Default is 1 (square canvas).
@@ -98,7 +98,7 @@ function initCamera() {
   // return { camera, controls };
 }
 
-function initScene() {
+function initScene(): THREE.Scene {
   const scene = new THREE.Scene();
 
   // // Add a skybox for a realistic space background
@@ -119,7 +119,7 @@ function initScene() {
   return scene;
 }
 
-function createStars(scene) {
+function createStars(scene: THREE.Scene): void {
   const starsGeometry = new THREE.BufferGeometry();
   const starsMaterial = new THREE.PointsMaterial({
     color: 0xffffff,
@@ -127,7 +127,7 @@ function createStars(scene) {
     sizeAttenuation: true,
   });
 
-  const starsVertices = [];
+  const starsVertices: number[] = [];
   for (let i = 0; i < 10000; i++) {
     const x = THREE.MathUtils.randFloatSpread(2000);
     const y = THREE.MathUtils.randFloatSpread(2000);
@@ -143,7 +143,7 @@ function createStars(scene) {
   scene.add(starField);
 }
 
-function setupLighting(scene) {
+function setupLighting(scene: THREE.Scene): void {
   // Simulate starlight with very low intensity ambient light
   const starlight = new THREE.AmbientLight(0x111111, 0.1);
   scene.add(starlight);
@@ -170,7 +170,7 @@ function setupLighting(scene) {
   scene.add(moonGlow);
 }
 
-async function createMoon(scene) {
+async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
   const radius = 1; // sphere radius. Default is 1.
   const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
   const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
@@ -213,7 +213,7 @@ async function createMoon(scene) {
 // ^^^^^^^^^^Initialization Functions^^^^^^^^^^
 
 // ==========Main Function==========
-function main() {
+function main(): void {
   if (!WebGL.isWebGL2Available()) {
     showWebGLError();
     return;
@@ -227,11 +227,11 @@ function main() {
     createStars(scene);
     setupLighting(scene);
 
-    // kick off the async moon load but don’t block  */
-    let moon = null;
+    // kick off the async moon load but don't block  */
+    let moon: THREE.Mesh | null = null;
     createMoon(scene).then((texturedMoon) => (moon = texturedMoon));
 
-    function render(time) {
+    function render(time: number): void {
       time *= 0.001;
 
       if (resizeRendererToDisplaySize(renderer)) {
