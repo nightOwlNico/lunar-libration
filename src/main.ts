@@ -188,8 +188,8 @@ async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
   const tiffLoader = new TIFFLoader();
 
   const [colorMap, displacementMap] = await Promise.all([
-    tiffLoader.loadAsync('/textures/moon/color-maps/lroc_color_poles_2k.tif'),
-    tiffLoader.loadAsync('/textures/moon/displacement-maps/ldem_4.tif'),
+    tiffLoader.loadAsync('/textures/moon/color-maps/lroc_color_poles_8k.tif'),
+    tiffLoader.loadAsync('/textures/moon/displacement-maps/ldem_16.tif'),
   ]);
 
   colorMap.colorSpace = THREE.SRGBColorSpace;
