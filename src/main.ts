@@ -1,5 +1,6 @@
 import * as THREE from 'three';
 import WebGL from 'three/addons/capabilities/WebGL.js';
+import { TIFFLoader } from 'three/examples/jsm/loaders/TIFFLoader.js';
 import './style.css';
 
 // ==========Utility Functions==========
@@ -169,7 +170,7 @@ function setupLighting(scene) {
   scene.add(moonGlow);
 }
 
-function createMoon(scene) {
+async function createMoon(scene) {
   const radius = 1; // sphere radius. Default is 1.
   const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
   const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
@@ -183,7 +184,23 @@ function createMoon(scene) {
     heightSegments
   );
 
-  const material = new THREE.MeshPhysicalMaterial({ color: 0xff0000 });
+  // Load textures using TIFFLoader
+  const tiffLoader = new TIFFLoader();
+
+  const [colorMap, displacementMap] = await Promise.all([
+    tiffLoader.loadAsync('/textures/moon/color-maps/lroc_color_poles_2k.tif'),
+    tiffLoader.loadAsync('/textures/moon/displacement-maps/ldem_4.tif'),
+  ]);
+
+  colorMap.colorSpace = THREE.SRGBColorSpace;
+  displacementMap.colorSpace = THREE.NoColorSpace;
+
+  const material = new THREE.MeshPhysicalMaterial({
+    map: colorMap,
+    displacementMap: displacementMap,
+    displacementScale: 0.1,
+    displacementBias: 0,
+  });
 
   const sphere = new THREE.Mesh(geometry, material);
 
@@ -210,7 +227,9 @@ function main() {
     createStars(scene);
     setupLighting(scene);
 
-    const moon = createMoon(scene);
+    // kick off the async moon load but don’t block  */
+    let moon = null;
+    createMoon(scene).then((texturedMoon) => (moon = texturedMoon));
 
     function render(time) {
       time *= 0.001;
@@ -221,10 +240,12 @@ function main() {
         camera.updateProjectionMatrix();
       }
 
-      const speed = 1 * 0.1;
-      const rot = time * speed;
-      moon.rotation.x = rot;
-      moon.rotation.y = rot;
+      if (moon) {
+        const speed = 0.1;
+        const rot = time * speed;
+        moon.rotation.x = rot;
+        moon.rotation.y = rot;
+      }
 
       renderer.render(scene, camera);
 
