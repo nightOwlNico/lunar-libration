@@ -245,7 +245,7 @@ function main(): void {
       if (moon) {
         const speed = 0.1;
         const rot = time * speed;
-        moon.rotation.x = rot;
+        // moon.rotation.x = rot;
         moon.rotation.y = rot;
       }
 
