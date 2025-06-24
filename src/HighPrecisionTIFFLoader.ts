@@ -17,13 +17,23 @@ export interface TIFFTextureResult {
 
 export class HighPrecisionTIFFLoader extends THREE.Loader {
   /**
+   * Standard loader interface method - delegates to loadTIFFAsync with default options
+   */
+  async loadAsync(
+    url: string,
+    _onProgress?: (event: ProgressEvent<EventTarget>) => void
+  ): Promise<TIFFTextureResult> {
+    return this.loadTIFFAsync(url);
+  }
+
+  /**
    * @param url        Absolute or relative URL to a TIFF/GeoTIFF file.
    * @param colour     true  = interpret as sRGB (albedo) map
    *                   false = interpret as height/gray map
    * @param normalise  If `colour===false` **and** the TIFF uses floating point
    *                   samples, re-maps the data to 0-1 and returns min/max.
    */
-  async loadAsync(
+  async loadTIFFAsync(
     url: string,
     {
       colour = false,
@@ -46,7 +56,7 @@ export class HighPrecisionTIFFLoader extends THREE.Loader {
     const samplesPerPixel = fileDir.SamplesPerPixel ?? 1;
 
     const asFloat = sampleFormat === 3;
-    const raster = await img.readRasters({ interleave: true, asFloat });
+    const raster = await img.readRasters({ interleave: true });
 
     /* --------------------------------------------------------------------- */
     /*  2. Decide Three.js texture params & convert data if necessary        */
@@ -60,6 +70,14 @@ export class HighPrecisionTIFFLoader extends THREE.Loader {
       | Float64Array;
 
     let data: Typed = raster as Typed;
+
+    // Convert to float if needed
+    if (
+      asFloat &&
+      !(data instanceof Float32Array || data instanceof Float64Array)
+    ) {
+      data = new Float32Array(data);
+    }
 
     /* ---------- colour texture must be RGBA/UBYTE for sRGB --------------- */
     let format: THREE.PixelFormat;
@@ -82,7 +100,7 @@ export class HighPrecisionTIFFLoader extends THREE.Loader {
         }
         data = dst;
       } else if (samplesPerPixel === 4) {
-        /* already RGBA – but make sure it’s 8-bit */
+        /* already RGBA – but make sure it's 8-bit */
         if (!(data instanceof Uint8Array)) {
           console.warn(
             '[HighPrecisionTIFFLoader] Colour texture has',
