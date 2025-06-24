@@ -172,13 +172,13 @@ function setupLighting(scene: THREE.Scene): void {
 
 async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
   const radius = 1; // sphere radius. Default is 1.
-  const widthSegments = 32; // number of horizontal segments. Minimum value is 3, and the default is 32.
-  const heightSegments = 16; // number of vertical segments. Minimum value is 2, and the default is 16.
+  const widthSegments = 512; // number of horizontal segments. Minimum value is 3, and the default is 32.
+  const heightSegments = 256; // number of vertical segments. Minimum value is 2, and the default is 16.
   // const phiStart = 0; // specify horizontal starting angle. Default is 0.
   // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
   // const thetaStart = 0; // specify vertical starting angle. Default is 0.
   // const thetaLength = Math.PI; // specify vertical sweep angle size. Default is Math.PI.
-  const geometry = new THREE.SphereGeometry(
+  const sphere = new THREE.SphereGeometry(
     radius,
     widthSegments,
     heightSegments
@@ -193,21 +193,23 @@ async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
   ]);
 
   colorMap.colorSpace = THREE.SRGBColorSpace;
+  colorMap.wrapS = THREE.RepeatWrapping;
   displacementMap.colorSpace = THREE.NoColorSpace;
+  displacementMap.wrapS = THREE.RepeatWrapping;
 
   const material = new THREE.MeshPhysicalMaterial({
     map: colorMap,
     displacementMap: displacementMap,
-    displacementScale: 0.1,
+    displacementScale: 0.0125,
     displacementBias: 0,
   });
 
-  const sphere = new THREE.Mesh(geometry, material);
+  const moon = new THREE.Mesh(sphere, material);
 
-  scene.add(sphere);
+  scene.add(moon);
   // moon.position.x = 0;
 
-  return sphere;
+  return moon;
 }
 
 // ^^^^^^^^^^Initialization Functions^^^^^^^^^^
