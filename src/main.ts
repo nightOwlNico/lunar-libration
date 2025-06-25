@@ -30,6 +30,20 @@ function resizeRendererToDisplaySize(renderer: THREE.WebGLRenderer): boolean {
 
   return needResize;
 }
+
+function showSpinner(): void {
+  const spinner = document.getElementById('loading-spinner');
+  if (spinner) {
+    spinner.style.display = 'block';
+  }
+}
+
+function hideSpinner(): void {
+  const spinner = document.getElementById('loading-spinner');
+  if (spinner) {
+    spinner.style.display = 'none';
+  }
+}
 // ^^^^^^^^^^Utility Functions^^^^^^^^^^
 
 // ==========Initialization Functions==========
@@ -211,7 +225,6 @@ async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
 
   return moon;
 }
-
 // ^^^^^^^^^^Initialization Functions^^^^^^^^^^
 
 // ==========Main Function==========
@@ -229,9 +242,19 @@ function main(): void {
     createStars(scene);
     setupLighting(scene);
 
-    // kick off the async moon load but don't block  */
+    showSpinner();
+
     let moon: THREE.Mesh | null = null;
-    createMoon(scene).then((texturedMoon) => (moon = texturedMoon));
+    // Kick off the async moon load
+    createMoon(scene)
+      .then((texturedMoon) => {
+        moon = texturedMoon;
+        hideSpinner();
+      })
+      .catch((error) => {
+        console.error('Failed to load moon textures:', error);
+        hideSpinner();
+      });
 
     function render(time: number): void {
       time *= 0.001;
