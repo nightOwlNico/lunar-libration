@@ -1,6 +1,6 @@
 import * as THREE from 'three';
 import WebGL from 'three/addons/capabilities/WebGL.js';
-import { TIFFLoader } from 'three/examples/jsm/loaders/TIFFLoader.js';
+import { HighPrecisionTIFFLoader } from './HighPrecisionTIFFLoader';
 import './style.css';
 
 // ==========Utility Functions==========
@@ -186,8 +186,8 @@ function setupLighting(scene: THREE.Scene): void {
 
 async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
   const radius = 1; // sphere radius. Default is 1.
-  const widthSegments = 512; // number of horizontal segments. Minimum value is 3, and the default is 32.
-  const heightSegments = 256; // number of vertical segments. Minimum value is 2, and the default is 16.
+  const widthSegments = 1024; // number of horizontal segments. Minimum value is 3, and the default is 32.
+  const heightSegments = 512; // number of vertical segments. Minimum value is 2, and the default is 16.
   // const phiStart = 0; // specify horizontal starting angle. Default is 0.
   // const phiLength = Math.PI * 2; // specify horizontal sweep angle size. Default is Math.PI * 2.
   // const thetaStart = 0; // specify vertical starting angle. Default is 0.
@@ -198,23 +198,29 @@ async function createMoon(scene: THREE.Scene): Promise<THREE.Mesh> {
     heightSegments
   );
 
-  // Load textures using TIFFLoader
-  const tiffLoader = new TIFFLoader();
+  // Load textures using HighPrecisionTIFFLoader
+  const tiffLoader = new HighPrecisionTIFFLoader();
 
-  const [colorMap, displacementMap] = await Promise.all([
-    tiffLoader.loadAsync('/textures/moon/color-maps/lroc_color_poles_8k.tif'),
-    tiffLoader.loadAsync('/textures/moon/displacement-maps/ldem_16.tif'),
+  const [colorMapResult, displacementMapResult] = await Promise.all([
+    tiffLoader.loadTIFFAsync(
+      '/textures/moon/color-maps/lroc_color_poles_8k.tif',
+      { colour: true }
+    ),
+    tiffLoader.loadTIFFAsync('/textures/moon/displacement-maps/ldem_16.tif', {
+      normalise: true,
+    }),
   ]);
 
-  colorMap.colorSpace = THREE.SRGBColorSpace;
+  const colorMap = colorMapResult.texture;
+  const displacementMap = displacementMapResult.texture;
+
   colorMap.wrapS = THREE.RepeatWrapping;
-  displacementMap.colorSpace = THREE.NoColorSpace;
   displacementMap.wrapS = THREE.RepeatWrapping;
 
   const material = new THREE.MeshPhysicalMaterial({
     map: colorMap,
     displacementMap: displacementMap,
-    displacementScale: 0.0125,
+    displacementScale: 0.075,
     displacementBias: 0,
   });
 
